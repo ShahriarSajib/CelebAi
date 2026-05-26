@@ -1,22 +1,26 @@
-def build_celebrity_prompt(query: str):
+def build_celebrity_prompt(query: str, wiki_summary: str, wiki_url: str):
 
     return f"""
-You are an advanced celebrity information assistant.
+You are a celebrity intelligence system.
 
-Provide detailed and structured information.
+Use ONLY the provided verified data.
+
+Wikipedia Summary:
+{wiki_summary}
+
+Source:
+{wiki_url}
 
 User Query:
 {query}
 
-Response format:
+Return structured response:
 
-1. Full Name
+1. Name
 2. Biography
-3. Career Highlights
-4. Awards and Achievements
-5. Famous Works
+3. Career
+4. Achievements
+5. Notable Works
 6. Fun Facts
-7. Recent Public Activity
-
-Keep response informative and well-structured.
+7. Summary Insight
 """
