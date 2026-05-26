@@ -1,26 +1,49 @@
-def build_celebrity_prompt(query: str, wiki_summary: str, wiki_url: str):
+def build_celebrity_prompt(
+    query: str,
+    wiki_summary: str,
+    wiki_url: str,
+    chat_history: str = ""
+):
 
     return f"""
-You are a celebrity intelligence system.
+You are a professional celebrity intelligence AI system.
 
-Use ONLY the provided verified data.
+You MUST use the provided Wikipedia data and conversation history to answer.
 
-Wikipedia Summary:
+---
+
+CONVERSATION HISTORY (MOST RECENT FIRST):
+{chat_history if chat_history else "No previous conversation."}
+
+---
+
+WIKIPEDIA CONTEXT:
 {wiki_summary}
 
-Source:
+SOURCE:
 {wiki_url}
 
-User Query:
+---
+
+USER QUERY:
 {query}
 
-Return structured response:
+---
+
+INSTRUCTIONS:
+- Use only the provided context (do not hallucinate facts)
+- Be concise but informative
+- Maintain continuity with chat history
+- If history is relevant, refer to it naturally
+
+---
+
+RESPONSE FORMAT:
 
 1. Name
 2. Biography
-3. Career
+3. Career Overview
 4. Achievements
 5. Notable Works
-6. Fun Facts
-7. Summary Insight
+6. Additional Insights
 """

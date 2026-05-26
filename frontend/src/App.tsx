@@ -4,7 +4,7 @@ import {
   Route
 } from "react-router-dom";
 
-import ResetPassword from "./pages/resetPassword";
+import ResetPassword from "./pages/ResetPassword";
 import Login from "./pages/Login";
 
 function App() {
