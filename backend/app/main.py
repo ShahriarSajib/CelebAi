@@ -7,6 +7,8 @@ from app.models.user_model import User
 from app.api.auth_router import router as auth_router
 from app.api.user_router import router as user_router
 
+from app.api.ai_router import router as ai_router
+
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
@@ -26,6 +28,7 @@ app.add_middleware(
 
 app.include_router(auth_router)
 app.include_router(user_router)
+app.include_router(ai_router)
 
 
 @app.get("/")
