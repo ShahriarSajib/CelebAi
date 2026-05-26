@@ -12,6 +12,8 @@ from app.services.chat_service import save_message, get_chat_history
 
 from app.prompts.celebrity_prompt import build_celebrity_prompt
 
+from app.services.hybrid_search import hybrid_search
+
 router = APIRouter(prefix="/ai", tags=["AI"])
 
 
@@ -46,7 +48,11 @@ def celebrity_search(
     # -------------------------
     # 2. Retrieve Wikipedia + Image
     # -------------------------
-    wiki_data = get_wikipedia_summary(request.query)
+    retrieval = hybrid_search(request.query)
+
+    context = retrieval["context"]
+    source = retrieval["source"]
+
     image_url = get_celebrity_image(request.query)
 
     # -------------------------
@@ -63,8 +69,8 @@ def celebrity_search(
     # -------------------------
     prompt = build_celebrity_prompt(
         query=request.query,
-        wiki_summary=wiki_data["summary"],
-        wiki_url=wiki_data["url"],
+        wiki_summary=context,
+        wiki_url=source,
         chat_history=chat_history_text
     )
 

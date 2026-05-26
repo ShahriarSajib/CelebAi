@@ -1,3 +1,4 @@
+import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -13,11 +14,17 @@ from app.models.chat_model import ChatSession, ChatMessage
 
 from app.api.chat_router import router as chat_router
 
+from huggingface_hub import login
+from app.api.index_router import router as index_router
+
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
     title="Celebrity AI Search API"
 )
+# HuggingFace login (runs once at startup)
+if os.getenv("HF_TOKEN"):
+    login(os.getenv("HF_TOKEN"))
 
 # CORS
 app.add_middleware(
@@ -34,6 +41,7 @@ app.include_router(auth_router)
 app.include_router(user_router)
 app.include_router(ai_router)
 app.include_router(chat_router)
+app.include_router(index_router)
 
 
 @app.get("/")
