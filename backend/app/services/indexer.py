@@ -1,18 +1,18 @@
 from app.vectorstore.chroma_store import ChromaStore
 from app.services.wikipedia_service import get_wikipedia_summary
+from app.utils.text_splitter import chunk_text
 
 store = ChromaStore()
 
 
 def index_celebrity(name: str):
-
     # -----------------------------
-    # 1. Fetch Wikipedia data
+    # 1. FETCH WIKIPEDIA DATA
     # -----------------------------
     data = get_wikipedia_summary(name)
 
     # -----------------------------
-    # 2. SAFETY CHECK (IMPORTANT)
+    # 2. SAFETY CHECKS
     # -----------------------------
     if not data:
         return {
@@ -30,23 +30,37 @@ def index_celebrity(name: str):
         }
 
     # -----------------------------
-    # 3. CLEAN METADATA (CHROMA SAFE)
+    # 3. CHUNKING STEP
     # -----------------------------
-    metadata = {}
+    # Splitting the text into manageable semantic pieces
+    chunks = chunk_text(summary, chunk_size=6, overlap=2)
 
-    if url:
-        metadata["source"] = str(url)
-
-    metadata["name"] = str(name)
+    if not chunks:
+        return {
+            "status": "failed",
+            "reason": "Text splitting generated zero chunks"
+        }
 
     # -----------------------------
-    # 4. STORE IN VECTOR DB
+    # 4. CLEAN METADATA & STORE EACH CHUNK
     # -----------------------------
-    store.add_document(
-        doc_id=name.strip().lower().replace(" ", "_"),
-        text=summary,
-        metadata=metadata
-    )
+    base_id = name.strip().lower().replace(" ", "_")
+
+    for idx, chunk in enumerate(chunks):
+        # Build clean, Chroma-safe metadata for each chunk
+        metadata = {
+            "name": str(name),
+            "chunk_id": int(idx)
+        }
+        if url:
+            metadata["source"] = str(url)
+
+        # Store the chunk with a unique document ID
+        store.add_document(
+            doc_id=f"{base_id}_chunk_{idx}",
+            text=chunk,
+            metadata=metadata
+        )
 
     # -----------------------------
     # 5. RESPONSE
@@ -54,5 +68,6 @@ def index_celebrity(name: str):
     return {
         "status": "success",
         "name": name,
-        "indexed": True
+        "indexed": True,
+        "chunks_created": len(chunks)
     }
